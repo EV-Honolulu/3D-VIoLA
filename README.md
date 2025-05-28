@@ -34,13 +34,6 @@ All the shared information will be placed in this repo. Please frequently check 
     F3 --> F4[evaluation]
 ```
 
-- **Dataset**: coding api calls -> generate caption for small set (30) -> get 3D representation with VGGT -> generate whole dataset (1000)
-- **3D setB**: connect cosmos and VGGT
-- **Train MLP**: setup backbone -> setup loss function and coding -> start training
-- **3D setA**: build depth anything -> depth map to point cloud
-- **LLM**: find language parts in code -> replace with LLM
-- **MVP**: TODO minimum viable product
-
 ### Important Dates
 
 - 6/1 finish MVP
@@ -49,6 +42,15 @@ All the shared information will be placed in this repo. Please frequently check 
 
 ### Milestones
 
+- [ ] LLM integration
+- [ ] Build Depth Anything
+- [ ] Build PointNet++
+- [ ] MVP
+- [ ] Build dataset
+- [ ] Train MLP
+
 ### MVP
+
+Replace the MLP with API.
 
  
