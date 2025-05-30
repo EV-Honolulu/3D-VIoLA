@@ -187,6 +187,7 @@ def load_config():
                         help="override params of the config file,"
                              " e.g. -p 'training.gamma=0.95'")
     args = parser.parse_args()
+    # args.config_file = "/tmp2/danzel/alfworld/configs/eval_config.yaml"
     assert os.path.exists(args.config_file), "Invalid config file"
     with open(args.config_file) as reader:
         config = yaml.safe_load(reader)

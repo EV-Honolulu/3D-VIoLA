@@ -129,3 +129,16 @@ dmypy.json
 
 # TW-Alfred
 data/json_2.1.1*
+
+# Download dataset
+json_2.1.1/
+valid_seen/
+valid_unseen/
+
+detectors/
+agents/pretrained_checkpoints/pretrained_checkpoint_id.pt
+agents/pretrained_checkpoints/pretrained_checkpoint_ood.pt
+
+# Download dataset zips
+valid_seen.zip
+valid_unseen.zip

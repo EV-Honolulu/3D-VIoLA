@@ -11,6 +11,7 @@ logic:
 
 env:
   type: 'AlfredTWEnv'                                       # 'AlfredTWEnv' or 'AlfredThorEnv' or 'AlfredHybrid'
+  # type: "AlfredHybrid"                                     
   # regen_game_files: False                                 # [Deprecated] Use script `alfworld-generate` instead.
   domain_randomization: False                               # shuffle Textworld print order and object id nums
   task_types: [1, 2, 3, 4, 5, 6]                            # task-type ids: 1 - Pick & Place, 2 - Examine in Light, 3 - Clean & Place, 4 - Heat & Place, 5 - Cool & Place, 6 - Pick Two & Place
@@ -65,10 +66,11 @@ general:
       - 'mrcnn_astar'
     envs:                                                   # different environments to evaluate in
       - 'AlfredTWEnv'
-      - 'AlfredThorEnv'
+      # - 'AlfredThorEnv'
     env:
       type:
-       'AlfredThorEnv'
+      #  'AlfredThorEnv'
+      - 'AlfredTWEnv'
     eval_paths:                                             # different splits to evaluate on
       - '$ALFWORLD_DATA/json_2.1.1/valid_seen'
 #      - '$ALFWORLD_DATA/json_2.1.1/valid_unseen'

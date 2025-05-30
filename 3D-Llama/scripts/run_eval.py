@@ -45,6 +45,7 @@ def run_eval():
                 config["dataset"]["eval_ood_data_path"] = eval_path
                 config["controller"]["type"] = controller_type
 
+                print(f'config type: {config["general"]["evaluate"]["env"]["type"]}')
                 alfred_env = get_environment(config["general"]["evaluate"]["env"]["type"])(config, train_eval="eval_out_of_distribution")
                 eval_env = alfred_env.init_env(batch_size=agent.eval_batch_size)
 

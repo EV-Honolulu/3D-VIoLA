@@ -215,13 +215,21 @@ class TextDAggerAgent(BaseAgent):
             chosen_actions = [item[idx] for item, idx in zip(action_candidate_list, chosen_indices)]
             return chosen_actions, chosen_indices, current_dynamics
 
-    def command_generation_greedy_generation(self, observation_strings, task_desc_strings, previous_dynamics):
+    def command_generation_greedy_generation(self, text_logger, observation_strings, task_desc_strings, previous_dynamics):
         with torch.no_grad():
             batch_size = len(observation_strings)
+
+            ### text input for text agent
+            
+            text_logger.info("Command generation: %s" % observation_strings)
+            text_logger.info("Task description: %s" % task_desc_strings)
 
             input_obs = self.get_word_input(observation_strings)
             h_obs, obs_mask = self.encode(observation_strings, use_model="online")
             h_td, td_mask = self.encode(task_desc_strings, use_model="online")
+            ###
+
+
             aggregated_obs_representation = self.online_net.aggretate_information(h_obs, obs_mask, h_td, td_mask)  # batch x obs_length x hid
 
             if self.recurrent:

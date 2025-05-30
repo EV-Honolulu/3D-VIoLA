@@ -1,11 +1,20 @@
 import copy
 import numpy as np
 import torch
-
+import logging
 import os
 import sys
 
 from alfworld.agents.utils.misc import extract_admissible_commands
+
+# setting text logger and logging level
+text_logger = logging.getLogger("alfworld.agents.agent.text_dagger_agent")
+text_logger.setLevel(logging.INFO)
+
+file_handler = logging.FileHandler("text_dagger_agent.log")
+file_handler.setLevel(logging.INFO)
+fromatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+text_logger.addHandler(file_handler)
 
 
 def evaluate_dagger(env, agent, num_games, debug=False):
@@ -35,16 +44,20 @@ def evaluate_dagger(env, agent, num_games, debug=False):
                 prev_rewards.append(0.0)
 
             observation_strings = list(obs)
+            ### texgt agent input 
             task_desc_strings, observation_strings = agent.get_task_and_obs(observation_strings)
             task_desc_strings = agent.preprocess_task(task_desc_strings)
             observation_strings = agent.preprocess_observation(observation_strings)
             first_sight_strings = copy.deepcopy(observation_strings)
+            ###
             agent.observation_pool.push_first_sight(first_sight_strings)
             if agent.action_space == "exhaustive":
                 action_candidate_list = [extract_admissible_commands(intro, obs) for intro, obs in zip(first_sight_strings, observation_strings)]
             else:
                 action_candidate_list = list(infos["admissible_commands"])
+            ### preprocess action candidates
             action_candidate_list = agent.preprocess_action_candidates(action_candidate_list)
+            
             observation_strings = [item + " [SEP] " + a for item, a in zip(observation_strings, execute_actions)]  # appending the chosen action at previous step into the observation
 
             still_running_mask = []
@@ -72,8 +85,10 @@ def evaluate_dagger(env, agent, num_games, debug=False):
                             if "Nothing happens" in observation_strings[i]:
                                 smart[i]["not working"].append(execute_actions[i])
 
-                    execute_actions, current_dynamics = agent.command_generation_greedy_generation(most_recent_observation_strings, task_desc_strings, previous_dynamics)
-
+                    # text agent function 
+                    text_logger.info("Episode: {:3d} | Step: {:3d} | Game: {:s} | Action: {:s}".format(episode_no, step_no, game_names[0], execute_actions[0]))
+                    execute_actions, current_dynamics = agent.command_generation_greedy_generation(text_logger, most_recent_observation_strings, task_desc_strings, previous_dynamics)
+                    text_logger.info("Actions: " + str(execute_actions))
                     # heuristically unstick the agent from generating the same thing over and over again
                     if agent.unstick_by_beam_search:
                         for i in range(batch_size):
