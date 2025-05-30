@@ -1,6 +1,7 @@
 import os
 import json
 import importlib
+import logging
 
 from alfworld.agents.environment import get_environment
 import alfworld.agents.modules.generic as generic
@@ -16,6 +17,7 @@ def run_eval():
     agent = TextDAggerAgent(config)
 
     output_dir = os.path.expandvars(config["general"]["save_path"])
+    save_output_dir = os.path.join(config["general"]["evaluate"]["eval_folder_save"])
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -44,6 +46,20 @@ def run_eval():
                 config["general"]["evaluate"]["env"]["type"] = eval_env_type
                 config["dataset"]["eval_ood_data_path"] = eval_path
                 config["controller"]["type"] = controller_type
+                experiment_name = config["general"]["evaluate"]["eval_experiment_tag"]
+
+                # change output folder to eval 
+                output_folder = os.path.join(save_output_dir, experiment_name)
+                os.makedirs(output_folder, exist_ok=True)
+
+                # setting text logger and logging level
+                text_logger = logging.getLogger("alfworld.agents.agent.text_dagger_agent")
+                text_logger.setLevel(logging.INFO)
+                logger_path = os.path.join(output_folder, "text_dagger_agent.log")
+                file_handler = logging.FileHandler(logger_path)
+                file_handler.setLevel(logging.INFO)
+                fromatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+                text_logger.addHandler(file_handler)
 
                 print(f'config type: {config["general"]["evaluate"]["env"]["type"]}')
                 alfred_env = get_environment(config["general"]["evaluate"]["env"]["type"])(config, train_eval="eval_out_of_distribution")
@@ -59,8 +75,10 @@ def run_eval():
 
                 # save results to json
                 split_name = eval_path.split("/")[-1]
-                experiment_name = config["general"]["evaluate"]["eval_experiment_tag"]
-                results_json = os.path.join(output_dir, "{}_{}_{}_{}.json".format(experiment_name, eval_env_type.lower(), controller_type, split_name))
+                # experiment_name = config["general"]["evaluate"]["eval_experiment_tag"]
+
+                # change output folder to store json results
+                results_json = os.path.join(output_folder, "{}_{}_{}_{}.json".format(experiment_name, eval_env_type.lower(), controller_type, split_name))
 
                 with open(results_json, 'w') as f:
                     json.dump(results, f, indent=4, sort_keys=True)

@@ -4,6 +4,8 @@ import torch
 import logging
 import os
 import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from alfworld.agents.agent.eval_lama import LLaMACommandGenerator
 
 from alfworld.agents.utils.misc import extract_admissible_commands
 
@@ -18,6 +20,7 @@ text_logger.addHandler(file_handler)
 
 
 def evaluate_dagger(env, agent, num_games, debug=False):
+    lama_gen = LLaMACommandGenerator()
     env.seed(42)
     agent.eval()
     episode_no = 0
@@ -94,7 +97,7 @@ def evaluate_dagger(env, agent, num_games, debug=False):
                         for i in range(batch_size):
                             if "Nothing happens" in observation_strings[i] and execute_actions[i] in smart[i]["not working"]:
                                 if len(smart[i]["to try"]) == 0:
-                                    bs_actions, _ = agent.command_generation_beam_search_generation(most_recent_observation_strings[i: i + 1], task_desc_strings[i: i + 1], None if previous_dynamics is None else previous_dynamics[i: i + 1])
+                                    bs_actions, _ = agent.command_generation_beam_search_generation(lama_gen, most_recent_observation_strings[i: i + 1], task_desc_strings[i: i + 1], None if previous_dynamics is None else previous_dynamics[i: i + 1])
                                     bs_actions = bs_actions[0]
                                     smart[i]["to try"] += bs_actions
 
@@ -145,6 +148,8 @@ def evaluate_dagger(env, agent, num_games, debug=False):
                 if np.sum(still_running) == 0:
                     break
 
+                break
+
             game_steps = np.sum(np.array(still_running_mask), 0).tolist()  # batch
             game_points = np.max(np.array(sequence_game_points), 0).tolist()  # batch
             game_gcs = np.max(np.array(goal_condition_points), 0).tolist() # batch
@@ -165,6 +170,8 @@ def evaluate_dagger(env, agent, num_games, debug=False):
             print("Model: {:s} | Episode: {:3d} | {:s} |  game points: {:2.3f} | game goal-condition points: {:2.3f} | game steps: {:2.3f}".format(agent.experiment_tag, episode_no, game_names[0], np.mean(res_points), np.mean(res_gcs), np.mean(res_steps)))
             # print(game_id + ":    " + " | ".join(print_actions))
             print(" | ".join(print_actions))
+
+            break
 
 
         average_points, average_gc_points, average_steps = np.mean(res_points), np.mean(res_gcs), np.mean(res_steps)
