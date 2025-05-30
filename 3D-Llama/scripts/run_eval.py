@@ -18,6 +18,7 @@ def run_eval():
 
     output_dir = os.path.expandvars(config["general"]["save_path"])
     save_output_dir = os.path.join(config["general"]["evaluate"]["eval_folder_save"])
+    num_files_in_save_output_dir = len(os.listdir(save_output_dir)) if os.path.exists(output_dir) else 0
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -49,7 +50,8 @@ def run_eval():
                 experiment_name = config["general"]["evaluate"]["eval_experiment_tag"]
 
                 # change output folder to eval 
-                output_folder = os.path.join(save_output_dir, experiment_name)
+                eval_name = experiment_name + "00" + str(num_files_in_save_output_dir)
+                output_folder = os.path.join(save_output_dir, eval_name)
                 os.makedirs(output_folder, exist_ok=True)
 
                 # setting text logger and logging level

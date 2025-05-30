@@ -90,14 +90,14 @@ def evaluate_dagger(env, agent, num_games, debug=False):
 
                     # text agent function 
                     text_logger.info("Episode: {:3d} | Step: {:3d} | Game: {:s} | Action: {:s}".format(episode_no, step_no, game_names[0], execute_actions[0]))
-                    execute_actions, current_dynamics = agent.command_generation_greedy_generation(text_logger, most_recent_observation_strings, task_desc_strings, previous_dynamics)
+                    execute_actions, current_dynamics = agent.command_generation_greedy_generation(lama_gen, text_logger, most_recent_observation_strings, task_desc_strings, previous_dynamics)
                     text_logger.info("Actions: " + str(execute_actions))
                     # heuristically unstick the agent from generating the same thing over and over again
                     if agent.unstick_by_beam_search:
                         for i in range(batch_size):
                             if "Nothing happens" in observation_strings[i] and execute_actions[i] in smart[i]["not working"]:
                                 if len(smart[i]["to try"]) == 0:
-                                    bs_actions, _ = agent.command_generation_beam_search_generation(lama_gen, most_recent_observation_strings[i: i + 1], task_desc_strings[i: i + 1], None if previous_dynamics is None else previous_dynamics[i: i + 1])
+                                    bs_actions, _ = agent.command_generation_beam_search_generation(most_recent_observation_strings[i: i + 1], task_desc_strings[i: i + 1], None if previous_dynamics is None else previous_dynamics[i: i + 1])
                                     bs_actions = bs_actions[0]
                                     smart[i]["to try"] += bs_actions
 
