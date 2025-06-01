@@ -8,9 +8,7 @@ import alfworld.agents.modules.generic as generic
 from alfworld.agents.agent import TextDAggerAgent
 from alfworld.agents.eval import evaluate_dagger, evaluate_dqn
 
-
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
 
 def run_eval():
     config = generic.load_config()
@@ -50,7 +48,7 @@ def run_eval():
                 experiment_name = config["general"]["evaluate"]["eval_experiment_tag"]
 
                 # change output folder to eval 
-                eval_name = experiment_name + "00" + str(num_files_in_save_output_dir)
+                eval_name = experiment_name + "_00" + str(num_files_in_save_output_dir)
                 output_folder = os.path.join(save_output_dir, eval_name)
                 os.makedirs(output_folder, exist_ok=True)
 

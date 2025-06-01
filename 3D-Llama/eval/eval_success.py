@@ -60,6 +60,22 @@ def eval_success(input_path, type):
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         with open(output_file, 'w') as outfile:
             json.dump(output_data, outfile, indent=4)
+    
+    return output_data
+
+def get_success_task_obs(type, output_data):
+    """
+    This function extracts the successful tasks descriptions and observation and Final actions from log file
+    """
+    if type == 'base':
+        eval_path = os.path.join(type)
+    for folder, results in output_data.items():
+        print(f"Folder: {folder}")
+        log_path = os.path.join(eval_path, folder, 'tex_dagger_agent.log')
+        
+        for task in results['success_task']:
+            print(f"- {task}")
+        print("\n")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate success of JSON operations.")
@@ -68,5 +84,6 @@ if __name__ == "__main__":
     # parser.add_argument('--output', type=str, default='output.json', help='Output JSON file path')
     args = parser.parse_args()
 
-    eval_success(args.input, args.type)
+    output_data = eval_success(args.input, args.type)
+    # get_success_task_obs(args.type, output_data)
     print("Evaluation completed successfully. Check output.json for results.")
