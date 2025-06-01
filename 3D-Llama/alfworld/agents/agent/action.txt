@@ -1,0 +1,13 @@
+go to
+open
+close
+look
+take 
+move 
+put 
+examine 
+use 
+heat 
+clean 
+cool 
+slice 

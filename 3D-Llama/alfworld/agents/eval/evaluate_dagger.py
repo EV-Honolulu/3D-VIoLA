@@ -62,7 +62,7 @@ def evaluate_dagger(env, agent, num_games, debug=False):
             action_candidate_list = agent.preprocess_action_candidates(action_candidate_list)
             
             observation_strings = [item + " [SEP] " + a for item, a in zip(observation_strings, execute_actions)]  # appending the chosen action at previous step into the observation
-
+            print("Episode: {:3d} | Game: {:s} | Action: {:s}".format(episode_no, game_names[0], execute_actions[0]))
             still_running_mask = []
             sequence_game_points = []
             goal_condition_points = []
@@ -91,6 +91,7 @@ def evaluate_dagger(env, agent, num_games, debug=False):
                     # text agent function 
                     text_logger.info("Episode: {:3d} | Step: {:3d} | Game: {:s} | Action: {:s}".format(episode_no, step_no, game_names[0], execute_actions[0]))
                     execute_actions, current_dynamics = agent.command_generation_greedy_generation(lama_gen, text_logger, most_recent_observation_strings, task_desc_strings, previous_dynamics)
+                    # text_logger.info("current dynamics: " + current_dynamics)
                     text_logger.info("Actions: " + str(execute_actions))
                     # heuristically unstick the agent from generating the same thing over and over again
                     if agent.unstick_by_beam_search:
@@ -147,8 +148,6 @@ def evaluate_dagger(env, agent, num_games, debug=False):
                 # if all ended, break
                 if np.sum(still_running) == 0:
                     break
-
-                break
 
             game_steps = np.sum(np.array(still_running_mask), 0).tolist()  # batch
             game_points = np.max(np.array(sequence_game_points), 0).tolist()  # batch

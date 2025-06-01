@@ -1,7 +1,25 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
+from pathlib import Path
+
 
 class LLaMACommandGenerator:
+    role_text: str = ""
+    action_text: str = "You can use the following actions:" \
+    " 1. **go to [object]**: Move to the specified object. " \
+    " 2. **open [object]**: Open the specified object. " \
+    " 3. **close [object]**: Close the specified object. " \
+    " 4. **look**: Look around your current location. " \
+    " 5. **take [object] from [container]**: Pick up an object from a receptacle. " \
+    " 6. **move [object] to [location]**: Move an object to a target location. " \
+    " 7. **put [object] in/on [container]**: Place an object into or onto another object. " \
+    " 8. **examine [object]**: Examine an object or container to get more information. " \
+    " 9. **use [object]**: Interact with a toggleable object (e.g., turn on a lamp). " \
+    "10. **heat [object] with [appliance]**: Heat an object using something like a microwave. " \
+    "11. **clean [object] with [appliance]**: Clean an object using a sink or basin. " \
+    "12. **cool [object] with [appliance]**: Cool an object using a fridge. " \
+    "13. **slice [object] with [tool]**: Slice an object using a knife or similar tool."
+    
     def __init__(self, model_name="meta-llama/Meta-Llama-3-8B", device="cuda", save_name="lama-8b"):
         self.device = device if torch.cuda.is_available() and device == "cuda" else "cpu"
         print(f"Using device: {self.device}")
@@ -20,18 +38,70 @@ class LLaMACommandGenerator:
 
         self.save_name = save_name
     
+    @classmethod
+    def read_my_file(cls):
+        # Read "role.txt" from the same folder as this script
+        folder = Path(__file__).parent
+        file_path = folder / "role.txt"
+        text = file_path.read_text()
+        # 2. assign to cls.role_prompt
+        cls.role_text = text
+    
     def generata_prompt(self, obs, task):
         """
-        Step 1: Select a role prompt based on task description.
+        Step 1: Select a role prompt based on task description. -> done
         Step 2: [SEP] refers to previous action or observation, group them to previous actions.
         Step 3: Regulate user output to only one comaand with templates - alfred.twl2.
         """
-        prompt = f""
+        
+        # Step 1: select role prompt based on task description
+        if "put a" in task or "put some" in task:
+            # Pick & Place
+            role_prompt = self.__class__.role_text.split("**Pick & Place**")[1].split("---")[0].strip()
+        elif "look at" in task or "examine" in task:
+            # Examine in Light
+            role_prompt = self.__class__.role_text.split("**Examine in Light**")[1].split("---")[0].strip()
+        elif "clean" in task and "put" in task:
+            # Clean & Place
+            role_prompt = self.__class__.role_text.split("**Clean & Place**")[1].split("---")[0].strip()
+        elif "heat" in task and "put" in task:
+            # Heat & Place
+            role_prompt = self.__class__.role_text.split("**Heat & Place**")[1].split("---")[0].strip()
+        elif "cool" in task and "put" in task:
+            # Cool & Place
+            role_prompt = self.__class__.role_text.split("**Cool & Place**")[1].split("---")[0].strip()
+        elif "put two" in task or "find two" in task:
+            # Pick Two & Place
+            role_prompt = self.__class__.role_text.split("**Pick Two & Place**")[1].split("---")[0].strip()
+        else:
+            role_prompt = ""  # fallback or raise an error/log warning
+
+        # Step 2: Group previous actions and observations
+        obs_split = obs.split("[SEP]")
+        env_prompt = obs_split[0].strip()  # Initial environment description
+        observations = [s.strip() for s in obs_split[1:] if s.strip()]  # Filter out empty strings
+        
+        prompt = f"{role_prompt}\n\n"
+        prompt += f"Environment: {env_prompt}\n"
+        prompt += "Previous Actions and Observations:\n"
+        for i, observation in enumerate(observations):
+            if i % 2 == 0:
+                prompt += f"Observation {i//2 + 1}: {observation}\n"
+            else:
+                prompt += f"Action {i//2 + 1}: {observation}\n"
+        prompt += f"\nTask: {task}\n"
+        prompt += "Please provide a single command that is relevant to the task and the current environment state.\n"
         return prompt
 
     def command_generation_lama(self, observation_strings, task_desc_strings):
         res = []
-
+        
+        read_my_file = self.__class__.read_my_file
+        if not hasattr(self.__class__, 'role_text') or not self.__class__.role_text:
+            read_my_file()
+        if not self.__class__.role_text:
+            raise ValueError("Role text not loaded. Please ensure 'role.txt' is present in the same directory as this script.")
+        
         for obs, task in zip(observation_strings, task_desc_strings):
             # Construct prompt
             prompt = self.generata_prompt(obs, task)
