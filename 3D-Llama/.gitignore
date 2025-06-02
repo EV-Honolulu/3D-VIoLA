@@ -142,3 +142,6 @@ agents/pretrained_checkpoints/pretrained_checkpoint_ood.pt
 # Download dataset zips
 valid_seen.zip
 valid_unseen.zip
+
+# llama checkpoints
+alfworld/agents/agent/Meta-Llama-3.1-8B-Instruct-Q8_0.gguf

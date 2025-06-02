@@ -1,13 +1,14 @@
-go to
-open
-close
-look
-take 
-move 
-put 
-examine 
-use 
-heat 
-clean 
-cool 
-slice 
+You should based on previous actions and observations to choose one of the following actions for next step:
+1. **go to [object]**: Move to the specified object. 
+2. **open [object]**: Open the specified object. 
+3. **close [object]**: Close the specified object. 
+4. **look**: Look around your current location. 
+5. **take [object] from [container]**: Pick up an object from a receptacle. 
+6. **move [object] to [location]**: Move an object to a target location. 
+7. **put [object] in/on [container]**: Place an object into or onto another object. 
+8. **examine [object]**: Examine an object or container to get more information. 
+9. **use [object]**: Interact with a toggleable object (e.g., turn on a lamp). 
+10. **heat [object] with [appliance]**: Heat an object using something like a microwave. 
+11. **clean [object] with [appliance]**: Clean an object using a sink or basin. 
+12. **cool [object] with [appliance]**: Cool an object using a fridge. 
+13. **slice [object] with [tool]**: Slice an object using a knife or similar tool.

@@ -20,7 +20,8 @@ text_logger.addHandler(file_handler)
 
 
 def evaluate_dagger(env, agent, num_games, debug=False):
-    lama_gen = LLaMACommandGenerator()
+    # lama_gen = LLaMACommandGenerator()
+    lama_gen = None
     env.seed(42)
     agent.eval()
     episode_no = 0

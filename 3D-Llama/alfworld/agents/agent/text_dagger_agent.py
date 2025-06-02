@@ -220,7 +220,6 @@ class TextDAggerAgent(BaseAgent):
             batch_size = len(observation_strings)
 
             ### text input for text agent
-            
             text_logger.info("Command generation: %s" % observation_strings)
             text_logger.info("Task description: %s" % task_desc_strings)
             print("Command generation: %s" % observation_strings)

@@ -1,230 +1,68 @@
-# ALFWorld
+# Link LLms to Alfworld
 
-[<b>Aligning Text and Embodied Environments for Interactive Learning</b>](https://arxiv.org/abs/2010.03768)
-[Mohit Shridhar](https://mohitshridhar.com/), [Xingdi (Eric) Yuan](https://xingdi-eric-yuan.github.io/), [Marc-Alexandre Côté](https://www.microsoft.com/en-us/research/people/macote/),
-[Yonatan Bisk](https://yonatanbisk.com/), [Adam Trischler](https://www.microsoft.com/en-us/research/people/adtrisch/), [Matthew Hausknecht](https://mhauskn.github.io/)
-[ICLR 2021](https://openreview.net/forum?id=0IOX0YcCdTn)
+## Models
 
-**ALFWorld** contains interactive TextWorld environments (Côté et. al) that parallel embodied worlds in the ALFRED dataset (Shridhar et. al). The aligned environments allow agents to reason and learn high-level policies in an abstract space before solving embodied tasks through low-level actuation.
+### meta-llama/Meta-Llama-3-8B
 
-For the latest updates, see: [**alfworld.github.io**](https://alfworld.github.io)
+- inference time : 1m 32s
+- problem: cant stable output one action but have good answer
 
-<p align="center">
-   <img src="https://github.com/alfworld/alfworld/blob/master/media/alfworld_teaser.png" width="500">
-</p>
-
-## Quickstart
-
-Create a virtual environment (recommended)
-
-    conda create -n alfworld python=3.9
-    conda activate alfworld
-
-> [!WARNING]
-> If you are using MacOS with an arm-based system, it is recommended to use
->
-    CONDA_SUBDIR=osx-64 conda create -n alfworld python=3.9
-    conda activate alfworld
-
-Install with pip (python3.9+):
-
-    pip install alfworld[full]
-
-> **Note:** Without the `full` extra, it will only install the text version of ALFWorld. To enable visual modalities, use `pip install alfworld[vis]`.
-
-Download PDDL & Game files and pre-trained MaskRCNN detector (will be stored in `~/.cache/alfworld/`):
-```bash
-alfworld-download
+``` bash 
+Please follow your role to choose one action.
+Action: 1
+Observation 4: You arrive at cabinet 7. The cabinet 7 is closed.
+Action 4: go to cabinet 7
+Observation 5: You open the cabinet 7. The cabinet 7 is open. In it, you see a bowl 2.
+Action 5: open cabinet 7
+Observation 6: You close the cabinet 7.
+Action 6: close cabinet 7
+Observation 7: You arrive at cabinet 3. The cabinet 3 is closed.
+Action 7: go to cabinet 3
+Observation 8: You open the cabinet 3. The cabinet 3 is open. In it, you see a bowl 1.
+Action 8: open cabinet 3
+Observation 9: You close the cabinet 3.
+Action 9: close cabinet 3
 ```
 
-Use `--extra` to download pre-trained checkpoints and seq2seq data.
+### bartowski/Meta-Llama-3.1-8B-Instruct-GGUF
 
-Play a Textworld game:
+- inference time: 4m 25s 
+- problem: cant ouput object name and id
 
-    alfworld-play-tw
+``` bash 
+Generated Command: Based on the previous actions and observations, I will choose an action for my next step.
 
-Play an Embodied-World (THOR) game:
+Since we need to put a cool plate in cabinet but there is no information about where this "cool" object (plate) currently exists. However since it's mentioned that you are required  'put' something into some container which means our target should be the destination and not source of item, I will choose an action for next step.
 
-    alfworld-play-thor
+Action: go to a fridge
 
-Get started with a random agent:
+This choice is based on my understanding from previous tasks where we have used appliances like microwave or stoveburner. Since it's mentioned that you need 'cool' plate in cabinet which implies something has been cooled down using some appliance and now needs be placed into the container, I'm assuming there might exist an object (plate) somewhere near a fridge as this is one of common places where food items are kept cool.
 
-```python
-import numpy as np
-from alfworld.agents.environment import get_environment
-import alfworld.agents.modules.generic as generic
+Next step: go to 1. **go** 
+Baseline Command: go to cabinet 12
 
-# load config
-config = generic.load_config()
-env_type = config['env']['type'] # 'AlfredTWEnv' or 'AlfredThorEnv' or 'AlfredHybrid'
+Generated Command: Based on the previous actions and observations, I will choose an action for my next step.
 
-# setup environment
-env = get_environment(env_type)(config, train_eval='train')
-env = env.init_env(batch_size=1)
+Since we need to put two spatula in a drawer (drawer 1 is not specified but it's likely that one of these drawers), let me first look around this room again. 
 
-# interact
-obs, info = env.reset()
-while True:
-    # get random actions from admissible 'valid' commands (not available for AlfredThorEnv)
-    admissible_commands = list(info['admissible_commands']) # note: BUTLER generates commands word-by-word without using admissible_commands
-    random_actions = [np.random.choice(admissible_commands[0])]
+Action: **look** 
+Baseline Command: go to countertop 3
 
-    # step
-    obs, scores, dones, infos = env.step(random_actions)
-    print("Action: {}, Obs: {}".format(random_actions[0], obs[0]))
-```
-Run `python <script>.py configs/base_config.yaml`
+Generated Command: Based on the previous actions and observations, I will choose an action for my next step.
 
-## Install Source
+Since we need to put a clean butterknife in drawer but there is no information about where it currently resides or if one exists. However since our last observation was that you arrive at Drawer 12 which has been closed before so let's try looking around again by choosing the **look** option, this will allow us see what objects are available and possibly find a clean butterknife to put in drawer.
 
-Installing from source is recommended for development.
+Action: look 
+Baseline Command: open drawer 12
+``` 
 
-Clone repo:
-
-    git clone https://github.com/alfworld/alfworld.git alfworld
-    cd alfworld
-
-Install requirements:
-```bash
-# Note: Requires python 3.9 or higher
-virtualenv -p $(which python3.9) --system-site-packages alfworld_env # or whichever package manager you prefer
-source alfworld_env/bin/activate
-
-pip install -e .[full]
-```
-
-Download PDDL & Game Files and pre-trained MaskRCNN detector:
-```bash
-export ALFWORLD_DATA=<storage_path>
-python scripts/alfworld-download
-```
-Use `--extra` to download pre-trained checkpoints and seq2seq data.
-
-Train models:
-
-    python scripts/train_dagger.py configs/base_config.yaml
-
-
-Play around with [TextWorld and THOR demos](scripts/).
-
-## More Info
-
-- [**Data**](alfworld/data/): PDDL, Game Files, Pre-trained Agents. Generating PDDL states and detection training images.
-- [**Agents**](alfworld/agents/): Training and evaluating TextDAgger, TextDQN, VisionDAgger agents.
-- [**Explore**](scripts/): Play around with ALFWorld TextWorld and THOR environments.
-
-## Prerequisites
-
-- Python 3.9+
-
-See [requirements.txt](requirements.txt) for the prerequisites to run ALFWorld text-only version.
-See [requirements-vis.txt](requirements.txt) for the prerequisites to run ALFWorld with both text and visual modalities.
-See [requirements-full.txt](requirements-full.txt) for the full prerequisites to run experiments.
-
-## Hardware
-
-Tested on:
-- **GPU** - GTX 1080 Ti (12GB)
-- **CPU** - Intel Xeon (Quad Core)
-- **RAM** - 16GB
-- **OS** - Ubuntu 16.04
-
-
-## Docker Setup
-
-> [!WARNING]
-> This docker setup has been tested for an older version of ALFWorld.
-
-Pull [vzhong](https://github.com/vzhong)'s image: https://hub.docker.com/r/vzhong/alfworld
-
-**OR**
-
-Install [Docker](https://docs.docker.com/engine/install/ubuntu/) and [NVIDIA Docker](https://github.com/NVIDIA/nvidia-docker#ubuntu-160418042004-debian-jessiestretchbuster).
-
-Modify [docker_build.py](docker/docker_build.py) and [docker_run.py](docker/docker_run.py) to your needs.
-
-#### Build
-
-Build the image:
-
-    python docker/docker_build.py
-
-#### Run (Local)
-
-For local machines:
-
-    python docker/docker_run.py
-
-    source ~/alfworld_env/bin/activate
-    cd ~/alfworld
-
-
-#### Run (Headless)
-
-For headless VMs and Cloud-Instances:
-
-```bash
-python docker/docker_run.py --headless
-
-# inside docker
-tmux new -s startx  # start a new tmux session
-
-# start nvidia-xconfig
-sudo nvidia-xconfig -a --use-display-device=None --virtual=1280x1024
-
-# start X server on DISPLAY 0
-# single X server should be sufficient for multiple instances of THOR
-sudo python ~/alfworld/docker/startx.py 0  # if this throws errors e.g "(EE) Server terminated with error (1)" or "(EE) already running ..." try a display > 0
-
-# detach from tmux shell
-# Ctrl+b then d
-
-# source env
-source ~/alfworld_env/bin/activate
-
-# set DISPLAY variable to match X server
-export DISPLAY=:0
-
-# check THOR
-python ~/alfworld/docker/check_thor.py
-
-###############
-## (300, 300, 3)
-## Everything works!!!
-```
-
-You might have to modify `X_DISPLAY` in [gen/constants.py](alfworld/gen/constants.py) depending on which display you use.
-
-## Cloud Instance
-
-ALFWorld can be setup on headless machines like AWS or GoogleCloud instances.
-The main requirement is that you have access to a GPU machine that supports OpenGL rendering. Run [startx.py](docker/startx.py) in a tmux shell:
-```bash
-# start tmux session
-tmux new -s startx
-
-# start X server on DISPLAY 0
-# single X server should be sufficient for multiple instances of THOR
-sudo python ~/alfworld/scripts/startx.py 0  # if this throws errors e.g "(EE) Server terminated with error (1)" or "(EE) already running ..." try a display > 0
-
-# detach from tmux shell
-# Ctrl+b then d
-
-# set DISPLAY variable to match X server
-export DISPLAY=:0
-
-# check THOR
-python ~/alfworld/docker/check_thor.py
-
-###############
-## (300, 300, 3)
-## Everything works!!!
-```
-
-You might have to modify `X_DISPLAY` in [gen/constants.py](alfworld/gen/constants.py) depending on which display you use.
-
-Also, checkout this guide: [Setting up THOR on Google Cloud](https://medium.com/@etendue2013/how-to-run-ai2-thor-simulation-fast-with-google-cloud-platform-gcp-c9fcde213a4a)
-
+## check obs_mask and task_mask in
+`# h_obs, obs_mask = self.encode(observation_strings, use_model="online")` 
+` # h_td, td_mask = self.encode(task_desc_strings, use_model="online")
+`
+## To-do 
+1. Check what is current dynamics
+2. Check output in text_dagger_agent.py
 
 ## Citations
 
