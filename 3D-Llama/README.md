@@ -56,13 +56,14 @@ Action: look
 Baseline Command: open drawer 12
 ``` 
 
-## check obs_mask and task_mask in
-`# h_obs, obs_mask = self.encode(observation_strings, use_model="online")` 
-` # h_td, td_mask = self.encode(task_desc_strings, use_model="online")
-`
 ## To-do 
 1. Check what is current dynamics
 2. Check output in text_dagger_agent.py
+3. check obs_mask and task_mask in
+    ``` bash
+    # h_obs, obs_mask = self.encode(observation_strings, use_model="online")
+    # h_td, td_mask = self.encode(task_desc_strings, use_model="online")
+    ```
 
 ## Citations
 
