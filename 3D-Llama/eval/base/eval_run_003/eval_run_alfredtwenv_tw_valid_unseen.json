@@ -1,0 +1,17 @@
+{
+    "average_goal_condition_points": 0.0,
+    "average_points": 0.0,
+    "average_steps": 50.0,
+    "res_gcs": [
+        0.0
+    ],
+    "res_info": [
+        "pick_two_obj_and_place-Pillow-None-Sofa-219/trial_T20190907_163240_345855, score: 0.0, step: 50.0"
+    ],
+    "res_points": [
+        0.0
+    ],
+    "res_steps": [
+        50.0
+    ]
+}
