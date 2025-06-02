@@ -4,10 +4,11 @@ import torch
 import logging
 import os
 import sys
+import transformers
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from alfworld.agents.agent.eval_lama import LLaMACommandGenerator
 
 from alfworld.agents.utils.misc import extract_admissible_commands
+from alfworld.agents.agent.eval_lama import LLMAgent, generate_response
 
 # setting text logger and logging level
 text_logger = logging.getLogger("alfworld.agents.agent.text_dagger_agent")
@@ -21,6 +22,16 @@ text_logger.addHandler(file_handler)
 
 def evaluate_dagger(env, agent, num_games, debug=False):
     # lama_gen = LLaMACommandGenerator()
+
+    # Load the LLaMA model for text generation
+    model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+    pipeline = transformers.pipeline(
+        "text-generation",
+        model=model_id,
+        model_kwargs={"torch_dtype": torch.bfloat16},
+        device_map="auto",
+    )
+
     lama_gen = None
     env.seed(42)
     agent.eval()
@@ -28,6 +39,7 @@ def evaluate_dagger(env, agent, num_games, debug=False):
     res_points, res_steps, res_gcs = [], [], []
     res_info = []
     with torch.no_grad():
+        emboddied_agent = LLMAgent(role_description="", task_description="", pipeline=pipeline)
         while(True):
             if episode_no >= num_games:
                 break
@@ -91,7 +103,7 @@ def evaluate_dagger(env, agent, num_games, debug=False):
 
                     # text agent function 
                     text_logger.info("Episode: {:3d} | Step: {:3d} | Game: {:s} | Action: {:s}".format(episode_no, step_no, game_names[0], execute_actions[0]))
-                    execute_actions, current_dynamics = agent.command_generation_greedy_generation(lama_gen, text_logger, most_recent_observation_strings, task_desc_strings, previous_dynamics)
+                    execute_actions, current_dynamics = agent.command_generation_greedy_generation(emboddied_agent, text_logger, most_recent_observation_strings, task_desc_strings, previous_dynamics)
                     # text_logger.info("current dynamics: " + current_dynamics)
                     text_logger.info("Actions: " + str(execute_actions))
                     # heuristically unstick the agent from generating the same thing over and over again

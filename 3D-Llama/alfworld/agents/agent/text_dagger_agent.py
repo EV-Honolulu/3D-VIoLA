@@ -14,7 +14,7 @@ from alfworld.agents.agent import BaseAgent
 import alfworld.agents.modules.memory as memory
 from alfworld.agents.modules.generic import to_np, to_pt, _words_to_ids, pad_sequences, preproc, max_len, ez_gather_dim_1, LinearSchedule, BeamSearchNode
 from alfworld.agents.modules.layers import NegativeLogLoss, masked_mean, compute_mask, GetGenerationQValue
-
+from alfworld.agents.agent.eval_lama import LLMAgent, generate_response
 
 class TextDAggerAgent(BaseAgent):
     '''
@@ -215,23 +215,19 @@ class TextDAggerAgent(BaseAgent):
             chosen_actions = [item[idx] for item, idx in zip(action_candidate_list, chosen_indices)]
             return chosen_actions, chosen_indices, current_dynamics
 
-    def command_generation_greedy_generation(self, lama_gen, text_logger, observation_strings, task_desc_strings, previous_dynamics):
+    def command_generation_greedy_generation(self, emboddied_agent: LLMAgent, text_logger, observation_strings, task_desc_strings, previous_dynamics):
         with torch.no_grad():
             batch_size = len(observation_strings)
 
             ### text input for text agent
             text_logger.info("Command generation: %s" % observation_strings)
             text_logger.info("Task description: %s" % task_desc_strings)
-            print("Command generation: %s" % observation_strings)
-            # res, current_dynamics = lama_gen.command_generation_lama(
-            #     observation_strings,
-            #     task_desc_strings
-            # )
+            # print("Command generation: %s" % observation_strings)
+
             input_obs = self.get_word_input(observation_strings)
             h_obs, obs_mask = self.encode(observation_strings, use_model="online")
             h_td, td_mask = self.encode(task_desc_strings, use_model="online")
-            ###
-
+            ### 
 
             aggregated_obs_representation = self.online_net.aggretate_information(h_obs, obs_mask, h_td, td_mask)  # batch x obs_length x hid
 
@@ -241,28 +237,30 @@ class TextDAggerAgent(BaseAgent):
             else:
                 current_dynamics = None
 
-            # greedy generation
-            input_target_list = [[self.word2id["[CLS]"]] for i in range(batch_size)]
-            eos = np.zeros(batch_size)
-            for _ in range(self.max_target_length):
+            res, _ = emboddied_agent.inference(observation_strings, task_desc_strings)
 
-                input_target = copy.deepcopy(input_target_list)
-                input_target = pad_sequences(input_target, maxlen=max_len(input_target)).astype('int32')
-                input_target = to_pt(input_target, self.use_cuda)
-                target_mask = compute_mask(input_target)  # mask of ground truth should be the same
-                pred = self.online_net.decode(input_target, target_mask, aggregated_obs_representation, obs_mask, current_dynamics, input_obs)  # batch x target_length x vocab
-                # pointer softmax
-                pred = to_np(pred[:, -1])  # batch x vocab
-                pred = np.argmax(pred, -1)  # batch
-                for b in range(batch_size):
-                    new_stuff = [pred[b]] if eos[b] == 0 else []
-                    input_target_list[b] = input_target_list[b] + new_stuff
-                    if pred[b] == self.word2id["[SEP]"]:
-                        eos[b] = 1
-                if np.sum(eos) == batch_size:
-                    break
-            res = [self.tokenizer.decode(item) for item in input_target_list]
-            res = [item.replace("[CLS]", "").replace("[SEP]", "").strip() for item in res]
+            # greedy generation
+            # input_target_list = [[self.word2id["[CLS]"]] for i in range(batch_size)]
+            # eos = np.zeros(batch_size)
+            # for _ in range(self.max_target_length):
+
+            #     input_target = copy.deepcopy(input_target_list)
+            #     input_target = pad_sequences(input_target, maxlen=max_len(input_target)).astype('int32')
+            #     input_target = to_pt(input_target, self.use_cuda)
+            #     target_mask = compute_mask(input_target)  # mask of ground truth should be the same
+            #     pred = self.online_net.decode(input_target, target_mask, aggregated_obs_representation, obs_mask, current_dynamics, input_obs)  # batch x target_length x vocab
+            #     # pointer softmax
+            #     pred = to_np(pred[:, -1])  # batch x vocab
+            #     pred = np.argmax(pred, -1)  # batch
+            #     for b in range(batch_size):
+            #         new_stuff = [pred[b]] if eos[b] == 0 else []
+            #         input_target_list[b] = input_target_list[b] + new_stuff
+            #         if pred[b] == self.word2id["[SEP]"]:
+            #             eos[b] = 1
+            #     if np.sum(eos) == batch_size:
+            #         break
+            # res = [self.tokenizer.decode(item) for item in input_target_list]
+            # res = [item.replace("[CLS]", "").replace("[SEP]", "").strip() for item in res]
             return res, current_dynamics
 
     def command_generation_beam_search_generation(self, observation_strings, task_desc_strings, previous_dynamics):
