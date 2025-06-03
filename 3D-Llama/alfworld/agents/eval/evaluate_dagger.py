@@ -21,25 +21,14 @@ text_logger.addHandler(file_handler)
 
 
 def evaluate_dagger(env, agent, num_games, debug=False):
-    # lama_gen = LLaMACommandGenerator()
 
-    # Load the LLaMA model for text generation
-    model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
-    pipeline = transformers.pipeline(
-        "text-generation",
-        model=model_id,
-        model_kwargs={"torch_dtype": torch.bfloat16},
-        device_map="auto",
-    )
-
-    lama_gen = None
     env.seed(42)
     agent.eval()
     episode_no = 0
     res_points, res_steps, res_gcs = [], [], []
     res_info = []
     with torch.no_grad():
-        emboddied_agent = LLMAgent(role_description="", task_description="", pipeline=pipeline)
+        emboddied_agent = LLMAgent(role_description="", task_description="")
         while(True):
             if episode_no >= num_games:
                 break

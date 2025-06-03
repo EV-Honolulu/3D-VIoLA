@@ -2,32 +2,15 @@ from pathlib import Path
 import transformers
 import torch
 import os
-from llama_cpp import Llama
+import time
 
-
-# if not Path('./Meta-Llama-3.1-8B-Instruct-Q8_0.gguf').exists():
-#     !wget https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/resolve/main/Meta-Llama-3.1-8B-Instruct-Q8_0.gguf
-
-# os.environ["CUDA_VISIBLE_DEVICES"] = "2" 
-# set device to cuda if available, else cpu
-# device = "cuda" if torch.cuda.is_available() else "cpu"
-# torch.cuda.set_device(2)
-
-# Load the model onto GPU
-# llama3 = Llama(
-#     "./Meta-Llama-3.1-8B-Instruct-Q8_0.gguf",
-#     verbose=False,
-#     n_gpu_layers=-1,
-#     n_ctx=32768,    # This argument is how many tokens the model can take. The longer the better, but it will consume more memory. 16384 is a proper value for a GPU with 16GB VRAM.
+# model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+# pipeline = transformers.pipeline(
+#     "text-generation",
+#     model=model_id,
+#     model_kwargs={"torch_dtype": torch.bfloat16},
+#     device_map="auto",
 # )
-
-model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
-pipeline = transformers.pipeline(
-    "text-generation",
-    model=model_id,
-    model_kwargs={"torch_dtype": torch.bfloat16},
-    device_map="auto",
-)
 
 def generate_response(_model, _messages: str) -> str:
     '''
@@ -43,12 +26,40 @@ def generate_response(_model, _messages: str) -> str:
     return _output
 
 class LLMAgent():
-    def __init__(self, role_description: str, task_description: str, pipeline, llm:str="bartowski/Meta-Llama-3.1-8B-Instruct-GGUF"):
+    _pipeline = None
+    _role_text = None
+    _action_text = None
+    
+    def __init__(self, role_description: str, task_description: str, llm:str="meta-llama/Meta-Llama-3.1-8B-Instruct"):
         self.role_description = role_description   # Role means who this agent should act like. e.g. the history expert, the manager......
         self.task_description = task_description    # Task description instructs what task should this agent solve.
         self.llm = llm  # LLM indicates which LLM backend this agent is using.
-        self.pipeline = pipeline
+        
+        # Load role text once
+        if self.__class__._role_text is None:
+            self.__class__.read_my_file()
+        if self.__class__._pipeline is None:
+            self.__class__.get_pipeline(llm)
 
+    @classmethod
+    def get_pipeline(cls, llm):
+        if cls._pipeline is None:
+            model_id = llm
+            cls._pipeline = transformers.pipeline(
+                "text-generation",
+                model=model_id,
+                model_kwargs={
+                    "torch_dtype": torch.bfloat16
+                    
+                    # to be tested with flash attention 2
+                    # "attn_implementation": "flash_attention_2",
+                },
+                device_map="auto",
+            )
+            
+        if cls._pipeline.tokenizer.pad_token_id is None:
+            cls._pipeline.tokenizer.pad_token = cls._pipeline.tokenizer.eos_token
+    
     @classmethod
     def read_my_file(cls):
         # Read "role.txt" from the same folder as this script
@@ -59,14 +70,14 @@ class LLMAgent():
         file_path = folder / "role.txt"
         text = file_path.read_text()
         # 2. assign to cls.role_prompt
-        cls.role_text = text
+        cls._role_text = text
 
         # 3. assign to cls.action_text
         action_file_path = folder / "action.txt"
         if action_file_path.exists():
-            cls.action_text = action_file_path.read_text().strip()
+            cls._action_text = action_file_path.read_text().strip()
         else:
-            cls.action_text = "You are a helpful assistant. Please provide a single command based on the task and observations."
+            cls._action_text = "You are a helpful assistant. Please provide a single command based on the task and observations."
 
     def generate_prompt(self, obs, task):
         """
@@ -78,27 +89,27 @@ class LLMAgent():
         # Step 1: select role prompt based on task description
         if "put a" in task or "put some" in task:
             # Pick & Place
-            role_prompt = self.__class__.role_text.split("**Pick & Place**")[1].split("---")[0].strip()
+            role_prompt = self.__class__._role_text.split("**Pick & Place**")[1].split("---")[0].strip()
         elif "look at" in task or "examine" in task:
             # Examine in Light
-            role_prompt = self.__class__.role_text.split("**Examine in Light**")[1].split("---")[0].strip()
+            role_prompt = self.__class__._role_text.split("**Examine in Light**")[1].split("---")[0].strip()
         elif "clean" in task and "put" in task:
             # Clean & Place
-            role_prompt = self.__class__.role_text.split("**Clean & Place**")[1].split("---")[0].strip()
+            role_prompt = self.__class__._role_text.split("**Clean & Place**")[1].split("---")[0].strip()
         elif "heat" in task and "put" in task:
             # Heat & Place
-            role_prompt = self.__class__.role_text.split("**Heat & Place**")[1].split("---")[0].strip()
+            role_prompt = self.__class__._role_text.split("**Heat & Place**")[1].split("---")[0].strip()
         elif "cool" in task and "put" in task:
             # Cool & Place
-            role_prompt = self.__class__.role_text.split("**Cool & Place**")[1].split("---")[0].strip()
+            role_prompt = self.__class__._role_text.split("**Cool & Place**")[1].split("---")[0].strip()
         elif "put two" in task or "find two" in task:
             # Pick Two & Place
-            role_prompt = self.__class__.role_text.split("**Pick Two & Place**")[1].split("---")[0].strip()
+            role_prompt = self.__class__._role_text.split("**Pick Two & Place**")[1].split("---")[0].strip()
         else:
             role_prompt = ""  # fallback or raise an error/log warning
 
         role = f"{role_prompt}\n\n"
-        role += self.__class__.action_text + "\n"
+        role += self.__class__._action_text + "\n"
         role += "Choose one action for next step.\n"
         self.role_description = role 
 
@@ -128,30 +139,32 @@ class LLMAgent():
     
     def inference(self, observation_strings, task_desc_strings) -> list:
         res = []
-        read_my_file = self.__class__.read_my_file
-        if not hasattr(self.__class__, 'role_text') or not self.__class__.role_text:
-            read_my_file()
-        if not self.__class__.role_text:
-            raise ValueError("Role text not loaded. Please ensure 'role.txt' is present in the same directory as this script.")
+        all_messages = []
         
         for obs, task in zip(observation_strings, task_desc_strings):
             message = self.generate_prompt(obs, task)
             messages = [
-                {"role": "system", "content": f"{self.role_description}"},  # Hint: you may want the agents to speak Traditional Chinese only.
-                {"role": "user", "content": f"{self.task_description}\n{message}"}, # Hint: you may want the agents to clearly distinguish the task descriptions and the user messages. A proper seperation text rather than a simple line break is recommended.
+                {"role": "system", "content": f"{self.role_description}"},  
+                {"role": "user", "content": f"{self.task_description}\n{message}"},
             ]
-            # generated_text =  generate_response(llama3, messages)
-            generated_text =  self.pipeline(
-                messages,
-                max_new_tokens=512,
-                do_sample=True,
-                temperature=0.6,
-                top_p=0.9,
-            )
-            generated_text = generated_text[0]['generated_text']
-            assistant_msg = next(msg for msg in generated_text if msg["role"] == "assistant")["content"].replace("**", "").strip()
-            # print(assistant_msg)
+            all_messages.append(messages)
+        
+        # generated_text =  generate_response(llama3, messages)
+        generated_texts = self.__class__._pipeline(
+            all_messages,
+            max_new_tokens=512,
+            do_sample=True,
+            temperature=0.6,
+            top_p=0.9,
+            batch_size=len(all_messages), 
+            pad_token_id=self.__class__._pipeline.tokenizer.eos_token_id,
+        )
+
+        for generated_text in generated_texts:
+            assistant_msg = next(msg for msg in generated_text[0]['generated_text'] 
+                            if msg["role"] == "assistant")["content"].replace("action: ", "").replace("**", "").strip()
             res.append(assistant_msg)
+
         return res, None
 
 
@@ -161,7 +174,7 @@ if __name__ == "__main__":
     Actions = ['go to cabinet 12', 'go to countertop 3', 'open drawer 12']
 
 
-    emboddied_agent = LLMAgent(role_description="", task_description="", pipeline=pipeline)
+    emboddied_agent = LLMAgent(role_description="", task_description="")
     commands,_ = emboddied_agent.inference(observation_strings, task_desc_strings)
 
     for cmd, baseline in zip(commands, Actions):
