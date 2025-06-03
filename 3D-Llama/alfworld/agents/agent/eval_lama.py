@@ -1,16 +1,9 @@
 from pathlib import Path
 import transformers
+from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 import os
 import time
-
-# model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
-# pipeline = transformers.pipeline(
-#     "text-generation",
-#     model=model_id,
-#     model_kwargs={"torch_dtype": torch.bfloat16},
-#     device_map="auto",
-# )
 
 def generate_response(_model, _messages: str) -> str:
     '''
@@ -29,6 +22,8 @@ class LLMAgent():
     _pipeline = None
     _role_text = None
     _action_text = None
+    _model = None
+    _tokenizer = None
     
     def __init__(self, role_description: str, task_description: str, llm:str="meta-llama/Meta-Llama-3.1-8B-Instruct"):
         self.role_description = role_description   # Role means who this agent should act like. e.g. the history expert, the manager......
@@ -40,6 +35,8 @@ class LLMAgent():
             self.__class__.read_my_file()
         if self.__class__._pipeline is None:
             self.__class__.get_pipeline(llm)
+        # if self.__class__._model is None:
+        #     self.__class__.get_model(llm)
 
     @classmethod
     def get_pipeline(cls, llm):
@@ -59,6 +56,23 @@ class LLMAgent():
             
         if cls._pipeline.tokenizer.pad_token_id is None:
             cls._pipeline.tokenizer.pad_token = cls._pipeline.tokenizer.eos_token
+    
+    @classmethod
+    def get_model(cls, llm):
+        if cls._model is None:
+            model_id = llm
+            cls._tokenizer = AutoTokenizer.from_pretrained(model_id)
+            cls._model = AutoModelForCausalLM.from_pretrained(
+                model_id,
+                use_auth_token=True,
+                torch_dtype=torch.bfloat16,
+                device_map="auto",
+            )
+            # Set the pad token id to eos token id
+            if cls._model.config.pad_token_id is None:
+                cls._tokenizer.pad_token = cls._tokenizer.eos_token
+                cls._model.config.pad_token_id = cls._model.config.eos_token_id
+            cls._model.eval()  # Set the model to evaluation mode
     
     @classmethod
     def read_my_file(cls):
@@ -130,12 +144,8 @@ class LLMAgent():
                 prompt += f"Observation {i//2 + 1}: {observation}\n"
             else:
                 prompt += f"Action {i//2 + 1}: {observation}\n"
-        prompt += f"Please answer with one of the following actions only.\
-                    Format your answer as: **action: [action]** \
-                    Examples: action: go to fridge 1, action: open drawer 2, action: take plate from drawer 1"
+        prompt += f"Please answer with one of the following actions only. Format your answer as: **action: [action]**. Examples: action: go to fridge 1, action: open drawer 2, action: take plate from drawer 1"
         return prompt
-
-
     
     def inference(self, observation_strings, task_desc_strings) -> list:
         res = []
@@ -145,11 +155,39 @@ class LLMAgent():
             message = self.generate_prompt(obs, task)
             messages = [
                 {"role": "system", "content": f"{self.role_description}"},  
-                {"role": "user", "content": f"{self.task_description}\n{message}"},
+                {"role": "user", "content": f"{message}\n{self.task_description}"},
             ]
             all_messages.append(messages)
         
-        # generated_text =  generate_response(llama3, messages)
+        start_time = time.time()
+        # # Generate responses using model.generate()
+        # input_ids = self.__class__._tokenizer.apply_chat_template(
+        #     all_messages,
+        #     tokenize=True,
+        #     add_generation_prompt=True,
+        #     return_tensors="pt",
+        #     padding=True,
+        #     truncation=True
+        # ).to(self.__class__._model.device)
+
+        # # Generate output
+        # with torch.no_grad():
+        #     output_ids = self.__class__._model.generate(
+        #         input_ids=input_ids,
+        #         max_new_tokens=128,
+        #         temperature=0.6,
+        #         top_p=0.8,
+        #         eos_token_id=[
+        #             self.__class__._tokenizer.eos_token_id,
+        #             self.__class__._tokenizer.convert_tokens_to_ids("<|eot_id|>")
+        #         ],
+        #         pad_token_id=self.__class__._tokenizer.pad_token_id
+        #     )
+        
+        # generated_texts = self.__class__._tokenizer.batch_decode(output_ids, skip_special_tokens=False)
+
+        
+        # Generate responses using the pipeline
         generated_texts = self.__class__._pipeline(
             all_messages,
             max_new_tokens=512,
@@ -159,8 +197,17 @@ class LLMAgent():
             batch_size=len(all_messages), 
             pad_token_id=self.__class__._pipeline.tokenizer.eos_token_id,
         )
-
+        end_time = time.time()
+        print(f"Time taken for inference: {end_time - start_time:.2f} seconds")
+        
         for generated_text in generated_texts:
+            # print(f"Generated text: {generated_text}")
+            # if "<|assistant|>" in generated_text:
+            #     assistant_msg = generated_text.split("<|assistant|>")[-1].strip()
+            # else:
+            #     assistant_msg = generated_text.split("**action:")[1].split("**")[0].strip()
+            
+            
             assistant_msg = next(msg for msg in generated_text[0]['generated_text'] 
                             if msg["role"] == "assistant")["content"].replace("action: ", "").replace("**", "").strip()
             res.append(assistant_msg)
