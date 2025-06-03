@@ -6,9 +6,10 @@
 
 - inference time : 3s per eval steps
 
-## To-do 
-1. Check what is current dynamics
-2. Check output in text_dagger_agent.py
+## To-do
+
+1. ~~Check what is current dynamics~~
+2. ~~Check output in text_dagger_agent.py~~
 3. check obs_mask and task_mask in
     ``` bash
     # h_obs, obs_mask = self.encode(observation_strings, use_model="online")
@@ -61,7 +62,3 @@
 - ALFWorld - MIT License
 - TextWorld - MIT License
 - Fast Downward - GNU General Public License (GPL) v3.0
-
-## Contact
-
-Questions or issues? File an issue or contact [Mohit Shridhar](https://mohitshridhar.com)
