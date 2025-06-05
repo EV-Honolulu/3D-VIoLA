@@ -36,7 +36,7 @@ All the shared information will be placed in this repo. Please frequently check 
 
     class A,A1,A2,A3 completed;
     class B completed;
-    class C completed;
+    class C,C1,C2 completed;
     class D,D1 completed;
     class E,E1 completed;
     class A4 inprogress;
