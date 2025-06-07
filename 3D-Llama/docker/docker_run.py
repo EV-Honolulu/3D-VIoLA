@@ -13,7 +13,8 @@ import yaml
 
 if __name__=="__main__":
     user_name = getpass.getuser()
-    default_image_name = user_name + '-alfworld'
+    default_image_name = "vzhong/alfworld"
+    # default_image_name = user_name + '-alfworld'
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--image", type=str,
                         help="(required) name of the image that this container is derived from", default=default_image_name.lower())
@@ -57,7 +58,7 @@ if __name__=="__main__":
     cmd += " -v ~/.ssh:%(home_directory)s/.ssh " % {'home_directory': home_directory}      # mount ssh keys
     cmd += " -v ~/.torch:%(home_directory)s/.torch " % {'home_directory': home_directory}  # mount torch folder
 
-    cmd += " --user %s " % user_name                                                       # login as current user
+    # cmd += " --user %s " % user_name                                                       # login as current user
 
     # custom data path
     cmd += " -v %s:/data " %(os.path.join(source_dir, args.data))
