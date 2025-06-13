@@ -1,66 +1,55 @@
 # 3D-VIoLA: 3D Visual Information of Embodied Scene Views for Language-Action Prediction
 
-All the shared information will be placed in this repo. Please frequently check for the updates and join the discussions.
+We introduce 3D-VioLA, a system for Language-Action Prediction that enables high-level control in object management tasks using large language models (LLMs). 3D-VioLA converts 2D camera views into 3D point clouds using VGGT, then projects this visual information into text representations through a learned projector. With the 3D visual information, LLM can perform better spatial reasoning and provide more accurate control to the robot.
 
-### Pipeline
+## Pipeline
 
-![](pipeline.png)
+![](asset/pipeline.png)
 
-### Development
+## Environment setup
 
-```mermaid
-    flowchart TD
-    A[Dataset] --> A1[Code API Calls]
-    A1 --> A2[Generate Captions for 30 Images]
-    A2 --> A3[Extract 3D Representation with VGGT]
-    A3 --> A4[Generate Full Dataset 1000 Images]
+We extracts 3D features from point cloud data using [3DETR](https://github.com/facebookresearch/3detr), with a little our own modification.
 
-    C[Train MLP] --> C1[Setup Backbone]
-    C1 --> C2[Define Loss Function and Coding]
-    C2 --> C3[Start Training]
+---
+Navigate to the `3D-perception/detr3d` directory:
 
-    D[3D Set A] --> D1[Build with VGGT]
-
-    B[3D Set B] --> B1[Connect COSMOS and VGGT]
-
-    E[LLM Integration] --> E1[Find Language Parts in Code]
-    E1 --> E2[Replace with LLM]
-
-    F[MVP] --> F1[LLM Integration]
-    F1 --> F2[3D Set A]
-    F2 --> F3[coding API calls]
-    F3 --> F4[evaluation]
-
-    classDef completed fill:#c2f0c2,stroke:#2b8a3e,stroke-width:2px;
-    classDef inprogress fill:#fff3cd,stroke:#ffcc00,stroke-width:2px,stroke-dasharray: 5 5;
-
-    class A,A1,A2,A3 completed;
-    class B completed;
-    class C,C1,C2 completed;
-    class D,D1 completed;
-    class E,E1 completed;
-    class A4 inprogress;
-    class E2 inprogress;
-    
+```
+cd 3D-perception/detr3d
 ```
 
-### Important Dates
+### 1. Install Dependencies
 
-- 6/1 finish MVP
-- 6/7 MLP training finish
-- 6/10 poster presentation
+Install dependencies (requires **Python 3.8**, **PyTorch 1.10.0**, and **CUDA 11.3**):
 
-### Milestones
+```
+pip install torch==1.10.0 torchvision==0.11.1 torchaudio==0.10.0 --index-url https://download.pytorch.org/whl/cu113
+pip install transformers==4.20.0
+```
 
-- [ ] LLM integration
-- [ ] Build Depth Anything
-- [ ] Build PointNet++
-- [ ] MVP
-- [ ] Build dataset
-- [ ] Train MLP
+Then, follow the installation guide provided in the official [3DETR repository](https://github.com/facebookresearch/3detr) to complete the setup.
 
-### MVP
+---
 
-Replace the MLP with API.
+### 2. Download Pretrained Weights
+
+Run the following script to download the pretrained model:
+
+```
+python utils/download_weights.py
+```
+
+---
+## Training
+Under 3D-perception directory:
+``` 
+python train.py [--dataset_root_dir data_path]
+```
+
+## Inference and Evaluation
+```
+python inference.py
+```
+
+
 
  
