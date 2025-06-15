@@ -1,0 +1,28 @@
+{
+    "eval_run_002": {
+        "average_points": 0.03731343283582089,
+        "average_steps": 48.38059701492537,
+        "total_task": 134,
+        "success_rate": 5,
+        "success_task": [
+            "look_at_obj_in_light-Pencil-None-DeskLamp-308/trial_T20190908_220604_010430, score: 1.0, step: 4.0",
+            "look_at_obj_in_light-CD-None-DeskLamp-308/trial_T20190908_142046_281296, score: 1.0, step: 6.0",
+            "look_at_obj_in_light-Mug-None-DeskLamp-308/trial_T20190908_201421_021646, score: 1.0, step: 5.0",
+            "pick_cool_then_place_in_recep-Mug-None-CoffeeMachine-10/trial_T20190907_183853_958104, score: 1.0, step: 8.0",
+            "look_at_obj_in_light-AlarmClock-None-DeskLamp-308/trial_T20190908_222951_616606, score: 1.0, step: 10.0"
+        ]
+    },
+    "eval_run_001": {
+        "average_points": 0.03571428571428571,
+        "average_steps": 48.41428571428571,
+        "total_task": 140,
+        "success_rate": 5,
+        "success_task": [
+            "look_at_obj_in_light-Laptop-None-DeskLamp-328/trial_T20190908_201550_622420, score: 1.0, step: 4.0",
+            "look_at_obj_in_light-Bowl-None-DeskLamp-316/trial_T20190908_230702_962704, score: 1.0, step: 7.0",
+            "look_at_obj_in_light-Statue-None-DeskLamp-216/trial_T20190909_193045_208933, score: 1.0, step: 4.0",
+            "pick_cool_then_place_in_recep-Pan-None-StoveBurner-23/trial_T20190906_215856_374127, score: 1.0, step: 7.0",
+            "look_at_obj_in_light-KeyChain-None-DeskLamp-327/trial_T20190906_202601_548273, score: 1.0, step: 6.0"
+        ]
+    }
+}

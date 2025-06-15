@@ -63,5 +63,103 @@ python inference.py
 > For point cloud generation, please visit vggt official website and clone the repository. Our point cloud generation code is provided in dataset/pointcloud.py
 
 
+## Link LLms to Alfworld
+
+### meta-llama/Meta-Llama-3.1-8B-Instruct
+
+- inference time : 3s per eval steps
+ 
+## Install Source for alfworld
+
+Installing from source is recommended for development.
+
+Clone repo:
+
+    git clone https://github.com/alfworld/alfworld.git alfworld
+    cd alfworld
+
+Install requirements:
+```bash
+# Note: Requires python 3.9 or higher
+virtualenv -p $(which python3.9) --system-site-packages alfworld_env # or whichever package manager you prefer
+source alfworld_env/bin/activate
+
+pip install -e .[full]
+```
+
+Download PDDL & Game Files and pre-trained MaskRCNN detector:
+```bash
+export ALFWORLD_DATA=<storage_path>
+python scripts/alfworld-download
+```
+Use `--extra` to download pre-trained checkpoints and seq2seq data.
+
+## Inference 
+
+## Evaluation
+
+### Modify Llama model 
+
+- Look at [**Llama Agent**](3D-Llama/alfworld/agents/agent/eval_lama.py)
+
+### INFO
+- [**Agents**](3D-Lama/alfworld/agents/): Training and evaluating TextDAgger, TextDQN, VisionDAgger agents.
+
+The training script evaluates every `report_frequency` episodes. But additionally, you can also independently evaluate pre-trained agents:
+
+```bash
+$ python scripts/run_eval.py config/eval_config.yaml
+```
+
+
+## Citations
+
+**ALFWorld**
+```
+@inproceedings{ALFWorld20,
+  title ={{ALFWorld: Aligning Text and Embodied
+           Environments for Interactive Learning}},
+  author={Mohit Shridhar and Xingdi Yuan and
+          Marc-Alexandre C\^ot\'e and Yonatan Bisk and
+          Adam Trischler and Matthew Hausknecht},
+  booktitle = {Proceedings of the International Conference on Learning Representations (ICLR)},
+  year = {2021},
+  url = {https://arxiv.org/abs/2010.03768}
+}
+```
+
+**ALFRED**
+```
+@inproceedings{ALFRED20,
+  title ={{ALFRED: A Benchmark for Interpreting Grounded
+           Instructions for Everyday Tasks}},
+  author={Mohit Shridhar and Jesse Thomason and Daniel Gordon and Yonatan Bisk and
+          Winson Han and Roozbeh Mottaghi and Luke Zettlemoyer and Dieter Fox},
+  booktitle = {The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year = {2020},
+  url  = {https://arxiv.org/abs/1912.01734}
+}
+```
+
+**TextWorld**
+```
+@inproceedings{cote2018textworld,
+  title={Textworld: A learning environment for text-based games},
+  author={C{\^o}t{\'e}, Marc-Alexandre and K{\'a}d{\'a}r, {\'A}kos and Yuan, Xingdi and Kybartas, Ben and Barnes, Tavian and Fine, Emery and Moore, James and Hausknecht, Matthew and El Asri, Layla and Adada, Mahmoud and others},
+  booktitle={Workshop on Computer Games},
+  pages={41--75},
+  year={2018},
+  organization={Springer}
+}
+```
+
+## License
+
+- ALFWorld - MIT License
+- TextWorld - MIT License
+- Fast Downward - GNU General Public License (GPL) v3.0
+
+
+
 
  

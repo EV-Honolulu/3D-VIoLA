@@ -1,0 +1,67 @@
+Generated Command: You are an embodied agent whose job is to execute “Pick & Place” tasks. Given a natural‐language instruction like “put a plate on the coffee table,” you must:
+1. Identify an object of the specified type in the scene.
+2. Issue a command to navigate to that object and pick it up.
+3. Determine the correct destination (e.g., the coffee table) and navigate there.
+4. Issue a command to place the object down in the designated location.
+   Now, given the current textual observation of the environment, produce exactly one next high‐level action (e.g., “go to cabinet 2,” “pick up plate,” “go to coffee table,” or “put down plate”) that advances the “Pick & Place” objective.
+
+Environment: -= Welcome to TextWorld, ALFRED! =- You are in the middle of a room. Looking quickly around you, you see a cabinet 1, a cabinet 10, a cabinet 11, a cabinet 12, a cabinet 2, a cabinet 3, a cabinet 4, a cabinet 5, a cabinet 6, a cabinet 7, a cabinet 8, a cabinet 9, a coffeemachine 1, a countertop 1, a countertop 2, a diningtable 1, a drawer 1, a drawer 2, a drawer 3, a fridge 1, a garbagecan 1, a microwave 1, a sinkbasin 1, a stoveburner 1, a stoveburner 2, a stoveburner 3, a stoveburner 4, and a toaster 1.
+Previous Actions and Observations:
+Observation 1: You arrive at cabinet 12. The cabinet 12 is closed.
+Action 1: go to cabinet 12
+Observation 2: You open the cabinet 12. The cabinet 12 is open. In it, you see a bowl 3.
+Action 2: open cabinet 12
+Observation 3: You close the cabinet 12.
+Action 3: close cabinet 12
+
+Task: put a cool plate in cabinet.
+Please follow your role and steps to provide next action.
+"""
+ 
+Baseline Command: go to cabinet 12
+Generated Command: You are an embodied agent designed for “Pick Two & Place” tasks. When given a task such as “put two pencils in the drawer,” your procedure is:
+1. Locate an object of the specified type (a pencil) and pick it up.
+2. Navigate to the target location (a drawer) and put down the first pencil.
+3. Return to find another object of the same type (the second pencil) elsewhere.
+4. Pick up the second pencil and return to the original drawer.
+5. Put down the second pencil alongside the first.
+   Based on the current observation, generate exactly one next high‐level command (for instance, “go to pencil 1,” “pick up pencil 1,” “go to drawer 2,” “put down pencil 1,” “go to pencil 3,” or “put down pencil 3”) that advances you toward accomplishing the “Pick Two & Place” goal.
+
+Environment: -= Welcome to TextWorld, ALFRED! =- You are in the middle of a room. Looking quickly around you, you see a cabinet 1, a cabinet 10, a cabinet 11, a cabinet 12, a cabinet 13, a cabinet 14, a cabinet 15, a cabinet 16, a cabinet 17, a cabinet 18, a cabinet 19, a cabinet 2, a cabinet 20, a cabinet 21, a cabinet 22, a cabinet 23, a cabinet 24, a cabinet 25, a cabinet 26, a cabinet 3, a cabinet 4, a cabinet 5, a cabinet 6, a cabinet 7, a cabinet 8, a cabinet 9, a coffeemachine 1, a countertop 1, a countertop 2, a countertop 3, a drawer 1, a drawer 10, a drawer 11, a drawer 12, a drawer 2, a drawer 3, a drawer 4, a drawer 5, a drawer 6, a drawer 7, a drawer 8, a drawer 9, a fridge 1, a garbagecan 1, a microwave 1, a sinkbasin 1, a stoveburner 1, a stoveburner 2, a stoveburner 3, a stoveburner 4, and a toaster 1.
+Previous Actions and Observations:
+Observation 1: You arrive at drawer 11. The drawer 11 is open. There is a pencil 6 in the drawer 11. There is a wrench 1 in the drawer 11.
+Observation 2: You arrive at cabinet 21. The cabinet 21 is open. There is a screwdriver 1 in the cabinet 21. There is a waterbottle 1 in the cabinet 21.
+Observation 3: You arrive at cabinet 11. The cabinet 11 is open. There is a screwdriver 1 in the cabinet 11.
+Observation 4: You arrive at cabinet 9. The cabinet 9 is open. There is a waterbottle 1 in the cabinet 9.
+Observation 5: You arrive at cabinet 11. The cabinet 11 is open. There is a screwdriver 1 in the cabinet 11.
+Observation 6: You arrive at cabinet 21. The cabinet 21 is open. There is a screwdriver 1 in the cabinet 21. There is a waterbottle 1 in the cabinet 21.
+Observation 7: You arrive at cabinet 21. The cabinet 21 is open. There is a screwdriver 1 in the cabinet 21. There is a waterbottle 1 in the cabinet 21.
+Observation 8: You arrive at cabinet 21. The cabinet 21 is open. There is a screwdriver 1 in the cabinet 21. There is a waterbottle 1 in the cabinet 21.
+Observation 9: You arrive at cabinet 11. The cabinet 11 is open. There is a screwdriver 1 in the cabinet 11.
+Observation 10: You arrive at cabinet 11. The cabinet 11 is open. There is a screwdriver 1 in the cabinet 11.
+Observation 11: You arrive at cabinet 21. The cabinet 21 is open. There is a screwdriver 1 in the cabinet 21. There is a waterbottle 1 in the cabinet 21.
+Observation 12: You arrive at cabinet 9. The cabinet 9 is open. There is a waterbottle 1 in the cabinet 9.
+Observation 13: You arrive at cabinet 21. The cabinet 21 is open. There is a screwdriver 1 in the cabinet 21. There is a waterbottle 1 in the cabinet 21.
+Observation 14: You arrive at cabinet 21. The 
+Baseline Command: go to countertop 3
+Generated Command: You are an embodied agent whose job is to execute “Pick & Place” tasks. Given a natural‐language instruction like “put a plate on the coffee table,” you must:
+1. Identify an object of the specified type in the scene.
+2. Issue a command to navigate to that object and pick it up.
+3. Determine the correct destination (e.g., the coffee table) and navigate there.
+4. Issue a command to place the object down in the designated location.
+   Now, given the current textual observation of the environment, produce exactly one next high‐level action (e.g., “go to cabinet 2,” “pick up plate,” “go to coffee table,” or “put down plate”) that advances the “Pick & Place” objective.
+
+Environment: -= Welcome to TextWorld, ALFRED! =- You are in the middle of a room. Looking quickly around you, you see a cabinet 1, a cabinet 2, a cabinet 3, a cabinet 4, a cabinet 5, a cabinet 6, a cabinet 7, a cabinet 8, a cabinet 9, a coffeemachine 1, a countertop 1, a countertop 2, a drawer 1, a drawer 10, a drawer 11, a drawer 12, a drawer 13, a drawer 2, a drawer 3, a drawer 4, a drawer 5, a drawer 6, a drawer 7, a drawer 8, a drawer 9, a fridge 1, a garbagecan 1, a microwave 1, a sinkbasin 1, a stoveburner 1, a stoveburner 2, a stoveburner 3, a stoveburner 4, a stoveburner 5, a stoveburner 6, and a toaster 1.
+Previous Actions and Observations:
+Observation 1: You close the drawer 12.
+Action 1: close drawer 12
+Observation 2: You arrive at drawer 10. On the drawer 10, you see nothing.
+Action 2: go to drawer 10
+Observation 3: You arrive at drawer 12. The drawer 12 is closed.
+Action 3: go to drawer 12
+
+Task: put a clean butterknife in drawer.
+Please follow your role and steps to provide next action.
+ 
+ 
+Baseline Command: open drawer 12
