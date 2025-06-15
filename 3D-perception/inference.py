@@ -118,7 +118,7 @@ if __name__ == "__main__":
 
     # Load dataset (Extract features on the fly and tokenize captions)
     dataset = TestingDataset(
-        root_dir="/project/aimm/ev-honolulu/ds_small",
+        root_dir="./ds_small",
         feature_extractor=model_3detr, 
     )
     dataloader = DataLoader(dataset, batch_size=1, shuffle=False)

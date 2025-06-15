@@ -24,6 +24,8 @@ Install dependencies (requires **Python 3.8**, **PyTorch 1.10.0**, and **CUDA 11
 ```
 pip install torch==1.10.0 torchvision==0.11.1 torchaudio==0.10.0 --index-url https://download.pytorch.org/whl/cu113
 pip install transformers==4.20.0
+pip install spacy==3.5.4
+pip install SceneGraphParser --no-build-isolation
 ```
 
 Then, follow the installation guide provided in the official [3DETR repository](https://github.com/facebookresearch/3detr) to complete the setup.
@@ -38,17 +40,27 @@ Run the following script to download the pretrained model:
 python utils/download_weights.py
 ```
 
+### 3. Download Datasets
+
+Due to the large file size, we only provide small dataset to test our code:
+
+Dataset link: https://drive.google.com/drive/folders/1z9W2g07JyK2Z-WO5LfYg4hwvJeLu4whz?usp=sharing
+
+After downloading the "ds_small" dataset, please move it to 3D-perception directory.
+
 ---
 ## Training
 Under 3D-perception directory:
 ``` 
-python train.py [--dataset_root_dir data_path]
+python train.py
 ```
 
 ## Inference and Evaluation
 ```
 python inference.py
 ```
+
+> For point cloud generation, please visit vggt official website and clone the repository. Our point cloud generation code is provided in dataset/pointcloud.py
 
 
 

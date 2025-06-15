@@ -99,7 +99,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Configuration
-    dataset_root = ["/project/aimm/ev-honolulu/dataset/train/pick_and_place_simple/ds_large/", "/project/aimm/ev-honolulu/dataset/train/look_at_obj_in_light/ds_large/", "/project/aimm/ev-honolulu/dataset/new/ds_large/"]
+    dataset_root = ["./ds_small"] #, "/project/aimm/ev-honolulu/dataset/train/pick_and_place_simple/ds_large/", "/project/aimm/ev-honolulu/dataset/train/look_at_obj_in_light/ds_large/", "/project/aimm/ev-honolulu/dataset/new/ds_large/"]
     checkpoint_path = args.test_ckpt
     batch_size = 8#8
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
