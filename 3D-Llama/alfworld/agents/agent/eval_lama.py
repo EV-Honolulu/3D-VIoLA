@@ -4,6 +4,8 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 import os
 import time
+from huggingface_hub import whoami
+
 
 def generate_response(_model, _messages: str) -> str:
     '''
@@ -25,7 +27,7 @@ class LLMAgent():
     _model = None
     _tokenizer = None
     
-    def __init__(self, role_description: str, task_description: str, llm:str="meta-llama/Meta-Llama-3.1-8B-Instruct"):
+    def __init__(self, role_description: str, task_description: str, llm:str="meta-llama/Llama-3.1-8B-Instruct"):
         self.role_description = role_description   # Role means who this agent should act like. e.g. the history expert, the manager......
         self.task_description = task_description    # Task description instructs what task should this agent solve.
         self.llm = llm  # LLM indicates which LLM backend this agent is using.
@@ -34,8 +36,11 @@ class LLMAgent():
         if self.__class__._role_text is None:
             self.__class__.read_my_file()
         if self.__class__._pipeline is None:
+            # llm = "/tmp2/danzel/alfworld/Meta-Llama-3.1-8B-Instruct"
             self.__class__.get_pipeline(llm)
         # if self.__class__._model is None:
+        #     print(whoami())
+        #     llm = "meta-llama/Llama-3.2-3B-Instruct"
         #     self.__class__.get_model(llm)
 
     @classmethod
@@ -47,11 +52,10 @@ class LLMAgent():
                 model=model_id,
                 model_kwargs={
                     "torch_dtype": torch.bfloat16
-                    
                     # to be tested with flash attention 2
                     # "attn_implementation": "flash_attention_2",
                 },
-                device_map="auto",
+                device_map="auto"
             )
             
         if cls._pipeline.tokenizer.pad_token_id is None:
@@ -216,9 +220,9 @@ class LLMAgent():
 
 
 if __name__ == "__main__":
-    observation_strings = ['-= Welcome to TextWorld, ALFRED! =- You are in the middle of a room. Looking quickly around you, you see a cabinet 1, a cabinet 10, a cabinet 11, a cabinet 12, a cabinet 2, a cabinet 3, a cabinet 4, a cabinet 5, a cabinet 6, a cabinet 7, a cabinet 8, a cabinet 9, a coffeemachine 1, a countertop 1, a countertop 2, a diningtable 1, a drawer 1, a drawer 2, a drawer 3, a fridge 1, a garbagecan 1, a microwave 1, a sinkbasin 1, a stoveburner 1, a stoveburner 2, a stoveburner 3, a stoveburner 4, and a toaster 1. [SEP] You arrive at cabinet 12. The cabinet 12 is closed. [SEP] go to cabinet 12 [SEP] You open the cabinet 12. The cabinet 12 is open. In it, you see a bowl 3. [SEP] open cabinet 12 [SEP] You close the cabinet 12. [SEP] close cabinet 12', '-= Welcome to TextWorld, ALFRED! =- You are in the middle of a room. Looking quickly around you, you see a cabinet 1, a cabinet 10, a cabinet 11, a cabinet 12, a cabinet 13, a cabinet 14, a cabinet 15, a cabinet 16, a cabinet 17, a cabinet 18, a cabinet 19, a cabinet 2, a cabinet 20, a cabinet 21, a cabinet 22, a cabinet 23, a cabinet 24, a cabinet 25, a cabinet 26, a cabinet 3, a cabinet 4, a cabinet 5, a cabinet 6, a cabinet 7, a cabinet 8, a cabinet 9, a coffeemachine 1, a countertop 1, a countertop 2, a countertop 3, a drawer 1, a drawer 10, a drawer 11, a drawer 12, a drawer 2, a drawer 3, a drawer 4, a drawer 5, a drawer 6, a drawer 7, a drawer 8, a drawer 9, a fridge 1, a garbagecan 1, a microwave 1, a sinkbasin 1, a stoveburner 1, a stoveburner 2, a stoveburner 3, a stoveburner 4, and a toaster 1. [SEP] You arrive at drawer 11. The drawer 11 is closed. [SEP] go to drawer 11 [SEP] You open the drawer 11. The drawer 11 is open. In it, you see nothing. [SEP] open drawer 11 [SEP] You close the drawer 11. [SEP] close drawer 11', '-= Welcome to TextWorld, ALFRED! =- You are in the middle of a room. Looking quickly around you, you see a cabinet 1, a cabinet 2, a cabinet 3, a cabinet 4, a cabinet 5, a cabinet 6, a cabinet 7, a cabinet 8, a cabinet 9, a coffeemachine 1, a countertop 1, a countertop 2, a drawer 1, a drawer 10, a drawer 11, a drawer 12, a drawer 13, a drawer 2, a drawer 3, a drawer 4, a drawer 5, a drawer 6, a drawer 7, a drawer 8, a drawer 9, a fridge 1, a garbagecan 1, a microwave 1, a sinkbasin 1, a stoveburner 1, a stoveburner 2, a stoveburner 3, a stoveburner 4, a stoveburner 5, a stoveburner 6, and a toaster 1. [SEP] You close the drawer 12. [SEP] close drawer 12 [SEP] You arrive at drawer 10. On the drawer 10, you see nothing. [SEP] go to drawer 10 [SEP] You arrive at drawer 12. The drawer 12 is closed. [SEP] go to drawer 12']
-    task_desc_strings = ['put a cool plate in cabinet.', 'put two spatula in drawer.', 'put a clean butterknife in drawer.']
-    Actions = ['go to cabinet 12', 'go to countertop 3', 'open drawer 12']
+    observation_strings = ['-= Welcome to TextWorld, ALFRED! =- You are in the middle of a room. Looking quickly around you, you see a sink 1, a cabinet 1, a cabinet 2, a drawer 1, a countertop 1, a drawer 2, a drawer 3, a drawer 4, a drawer 5, a drawer 6, a countertop 2, a countertop 3, a sinkbasin 1, a microwave 1, a countertop 4, a stoveburner 1, a stoveburner 2, a stoveburner 3, a stoveburner 4, a diningtable 1, a toaster 1, a fridge 1, and a garbagecan 1. The scene depicts a kitchen with the following key features: 1. **Central Island**: A large, dark brown countertop island sits centrally, featuring several objects, including: - A knife positioned near the front edge, left side. - A black pot located centrally on the countertop. - Two similarly styled decorative bottles of different sizes to the right of the pot. - A small bottle/container near the back center. 2. **Surrounding Environment**: - Cabinets are along the back and left walls, with dark fronts and metallic handles.']
+    task_desc_strings = ['Pick up the toaster on the diningtable 1.']
+    Actions = ['go to cabinet 12']
 
 
     emboddied_agent = LLMAgent(role_description="", task_description="")

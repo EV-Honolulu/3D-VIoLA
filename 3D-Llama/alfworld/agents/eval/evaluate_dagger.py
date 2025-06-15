@@ -173,8 +173,6 @@ def evaluate_dagger(env, agent, num_games, debug=False):
             # print(game_id + ":    " + " | ".join(print_actions))
             print(" | ".join(print_actions))
 
-            break
-
 
         average_points, average_gc_points, average_steps = np.mean(res_points), np.mean(res_gcs), np.mean(res_steps)
         print("================================================")
