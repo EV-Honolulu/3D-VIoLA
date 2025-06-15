@@ -96,8 +96,6 @@ Use `--extra` to download pre-trained checkpoints and seq2seq data.
 
 ## Inference 
 
-## Evaluation
-
 ### Modify Llama model 
 
 - Look at [**Llama Agent**](3D-Llama/alfworld/agents/agent/eval_lama.py)
@@ -105,7 +103,7 @@ Use `--extra` to download pre-trained checkpoints and seq2seq data.
 ### INFO
 - [**Agents**](3D-Lama/alfworld/agents/): Training and evaluating TextDAgger, TextDQN, VisionDAgger agents.
 
-The training script evaluates every `report_frequency` episodes. But additionally, you can also independently evaluate pre-trained agents:
+The enference script evaluates every `report_frequency` episodes. But additionally, you can also independently evaluate pre-trained agents:
 
 ```bash
 $ python scripts/run_eval.py config/eval_config.yaml
