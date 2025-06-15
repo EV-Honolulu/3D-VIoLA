@@ -1,0 +1,10 @@
+detr3d/weights/
+detr3d/data/
+data/
+ds_small/
+*.pth
+*.txt
+__pycache__/
+wandb/
+model0*
+
